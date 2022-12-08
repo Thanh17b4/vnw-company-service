@@ -1,6 +1,6 @@
 from starlette import status
 
-from companies.schemas import Company, CompanyResult, CompanyListResult
+from schemas import Company, CompanyResult, CompanyListResult
 from model.check_data import is_blank
 from config import mydb
 from slugify import slugify
