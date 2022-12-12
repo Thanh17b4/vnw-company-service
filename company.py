@@ -2,14 +2,14 @@ from starlette import status
 
 from schemas import Company, CompanyResult, CompanyListResult
 from model.check_data import is_blank
-from config import mydb
+from db import mydb
 from slugify import slugify
 from fastapi import APIRouter, Response
 
 company_router = APIRouter()
 
 
-@company_router.post('/company/create/', status_code=201)
+@company_router.post('/company', status_code=201)
 def create_company(request: Company, response: Response):
     company = request.company_to_dict()
     # Validate data
@@ -38,7 +38,7 @@ def __validate(req: dict):
     return req, ""
 
 
-@company_router.get('/company/detail/{id}', status_code=200)
+@company_router.get('/company/{id}', status_code=200)
 def detail_company(id: int, response: Response):
     with mydb:
         my_cursor = mydb.cursor()
@@ -50,7 +50,7 @@ def detail_company(id: int, response: Response):
         return True, CompanyResult(company)
 
 
-@company_router.get('/company/all/', status_code=200)
+@company_router.get('/company', status_code=200)
 def all_company(page: int, limit: int, response: Response):
     with mydb:
         my_cursor = mydb.cursor()
@@ -73,7 +73,7 @@ def all_company(page: int, limit: int, response: Response):
         return CompanyListResult(companies)
 
 
-@company_router.put('/company/update/{id}', status_code=200)
+@company_router.put('/company/{id}', status_code=200)
 async def update_company(id: int, req: Company, response: Response):
     company = req.company_to_dict()
     boolean, result = detail_company(id, response)
@@ -101,7 +101,7 @@ def __check_changes(req: dict, new_req: dict):
     return new_req, ""
 
 
-@company_router.delete('/company/delete/{id}', status_code=200)
+@company_router.delete('/company/{id}', status_code=200)
 async def delete_company(id: int, response: Response):
     boolean, result = detail_company(id, response)
     if boolean is False:
