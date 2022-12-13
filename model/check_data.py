@@ -12,7 +12,3 @@ def is_integer(id: any):
     result = v.validate({'id': id})
     return result
 
-
-if __name__ == '__main__':
-    a = is_integer(5)
-    print(a)

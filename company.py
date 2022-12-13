@@ -9,7 +9,7 @@ from schemas import Company, company_result, company_list_result
 company_router = APIRouter()
 
 
-@company_router.post('/companies', status_code=201)
+@company_router.post("/companies", status_code=201)
 def create_company(request: Company, response: Response):
     company = request.company_to_dict()
     # Validate data
@@ -21,7 +21,14 @@ def create_company(request: Company, response: Response):
     with postgres_db:
         my_cursor = postgres_db.cursor()
         sql = "INSERT INTO company (name, address, website, scale, contact, slug) VALUES (%s, %s, %s, %s, %s, %s)"
-        val = (company["name"], company["address"], company["website"], company["scale"], company["contact"], slug)
+        val = (
+            company["name"],
+            company["address"],
+            company["website"],
+            company["scale"],
+            company["contact"],
+            slug,
+        )
         my_cursor.execute(sql, val)
         postgres_db.commit()
         response.status_code = status.HTTP_201_CREATED
@@ -38,7 +45,7 @@ def __validate(req: dict):
     return req, ""
 
 
-@company_router.get('/companies/{id}', status_code=200)
+@company_router.get("/companies/{id}", status_code=200)
 def detail_company(id: int, response: Response):
     with postgres_db:
         my_cursor = postgres_db.cursor()
@@ -50,7 +57,7 @@ def detail_company(id: int, response: Response):
         return True, company_result(company)
 
 
-@company_router.get('/companies', status_code=200)
+@company_router.get("/companies", status_code=200)
 def all_company(page: int, limit: int, response: Response):
     with postgres_db:
         my_cursor = postgres_db.cursor()
@@ -73,7 +80,7 @@ def all_company(page: int, limit: int, response: Response):
         return company_list_result(companies)
 
 
-@company_router.put('/companies/{id}', status_code=200)
+@company_router.put("/companies/{id}", status_code=200)
 async def update_company(id: int, req: Company, response: Response):
     company = req.company_to_dict()
     boolean, result = detail_company(id, response)
@@ -89,20 +96,32 @@ async def update_company(id: int, req: Company, response: Response):
     with postgres_db:
         my_cursor = postgres_db.cursor()
         sql = "UPDATE company SET name = %s, address = %s, website = %s, scale = %s, contact = %s, slug = %s   WHERE id = %s"
-        val = (company["name"], company["address"], company["website"], company["scale"], company["contact"], slug, id)
+        val = (
+            company["name"],
+            company["address"],
+            company["website"],
+            company["scale"],
+            company["contact"],
+            slug,
+            id,
+        )
         my_cursor.execute(sql, val)
         return f"{my_cursor.rowcount} row affected"
 
 
 def __check_changes(req: dict, new_req: dict):
-    if req["name"] == new_req["name"] and req["address"] == new_req["address"] and req["website"] == new_req[
-        "website"] and \
-            req["scale"] == new_req["scale"] and req["contact"] == new_req["contact"]:
+    if (
+        req["name"] == new_req["name"]
+        and req["address"] == new_req["address"]
+        and req["website"] == new_req["website"]
+        and req["scale"] == new_req["scale"]
+        and req["contact"] == new_req["contact"]
+    ):
         return False, "no information have been changed"
     return new_req, ""
 
 
-@company_router.delete('/companies/{id}', status_code=200)
+@company_router.delete("/companies/{id}", status_code=200)
 async def delete_company(id: int, response: Response):
     boolean, result = detail_company(id, response)
     if boolean is False:
