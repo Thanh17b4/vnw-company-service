@@ -1,15 +1,15 @@
+from fastapi import APIRouter, Response
+from slugify import slugify
 from starlette import status
 
-from schemas import Company, CompanyResult, CompanyListResult
+from db import postgres_db
 from model.check_data import is_blank
-from db import mydb
-from slugify import slugify
-from fastapi import APIRouter, Response
+from schemas import Company, company_result, company_list_result
 
 company_router = APIRouter()
 
 
-@company_router.post('/company', status_code=201)
+@company_router.post('/companies', status_code=201)
 def create_company(request: Company, response: Response):
     company = request.company_to_dict()
     # Validate data
@@ -18,12 +18,12 @@ def create_company(request: Company, response: Response):
         response.status_code = status.HTTP_400_BAD_REQUEST
         return msg
     slug = slugify(company["name"])
-    with mydb:
-        my_cursor = mydb.cursor()
+    with postgres_db:
+        my_cursor = postgres_db.cursor()
         sql = "INSERT INTO company (name, address, website, scale, contact, slug) VALUES (%s, %s, %s, %s, %s, %s)"
         val = (company["name"], company["address"], company["website"], company["scale"], company["contact"], slug)
         my_cursor.execute(sql, val)
-        mydb.commit()
+        postgres_db.commit()
         response.status_code = status.HTTP_201_CREATED
         return f"{my_cursor.rowcount} company has been inserted successfully"
 
@@ -38,22 +38,22 @@ def __validate(req: dict):
     return req, ""
 
 
-@company_router.get('/company/{id}', status_code=200)
+@company_router.get('/companies/{id}', status_code=200)
 def detail_company(id: int, response: Response):
-    with mydb:
-        my_cursor = mydb.cursor()
+    with postgres_db:
+        my_cursor = postgres_db.cursor()
         my_cursor.execute("SELECT * FROM company WHERE id = %d" % id)
         company = my_cursor.fetchone()
         if company is None:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return False, f"company_id is not correct"
-        return True, CompanyResult(company)
+        return True, company_result(company)
 
 
-@company_router.get('/company', status_code=200)
+@company_router.get('/companies', status_code=200)
 def all_company(page: int, limit: int, response: Response):
-    with mydb:
-        my_cursor = mydb.cursor()
+    with postgres_db:
+        my_cursor = postgres_db.cursor()
         my_cursor.execute("SELECT COUNT(*) FROM company")
         total_companies = my_cursor.fetchone()[0]
         d = total_companies % limit
@@ -70,10 +70,10 @@ def all_company(page: int, limit: int, response: Response):
         if companies is None:
             response.status_code = status.HTTP_400_BAD_REQUEST
             return f"query was wrong"
-        return CompanyListResult(companies)
+        return company_list_result(companies)
 
 
-@company_router.put('/company/{id}', status_code=200)
+@company_router.put('/companies/{id}', status_code=200)
 async def update_company(id: int, req: Company, response: Response):
     company = req.company_to_dict()
     boolean, result = detail_company(id, response)
@@ -86,8 +86,8 @@ async def update_company(id: int, req: Company, response: Response):
         response.status_code = status.HTTP_400_BAD_REQUEST
         return msg
     slug = slugify(company["name"])
-    with mydb:
-        my_cursor = mydb.cursor()
+    with postgres_db:
+        my_cursor = postgres_db.cursor()
         sql = "UPDATE company SET name = %s, address = %s, website = %s, scale = %s, contact = %s, slug = %s   WHERE id = %s"
         val = (company["name"], company["address"], company["website"], company["scale"], company["contact"], slug, id)
         my_cursor.execute(sql, val)
@@ -95,19 +95,20 @@ async def update_company(id: int, req: Company, response: Response):
 
 
 def __check_changes(req: dict, new_req: dict):
-    if req["name"] == new_req["name"] and req["address"] == new_req["address"] and req["website"] == new_req["website"] and \
-       req["scale"] == new_req["scale"] and req["contact"] == new_req["contact"]:
+    if req["name"] == new_req["name"] and req["address"] == new_req["address"] and req["website"] == new_req[
+        "website"] and \
+            req["scale"] == new_req["scale"] and req["contact"] == new_req["contact"]:
         return False, "no information have been changed"
     return new_req, ""
 
 
-@company_router.delete('/company/{id}', status_code=200)
+@company_router.delete('/companies/{id}', status_code=200)
 async def delete_company(id: int, response: Response):
     boolean, result = detail_company(id, response)
     if boolean is False:
         response.status_code = status.HTTP_400_BAD_REQUEST
         return result
-    with mydb:
-        my_cursor = mydb.cursor()
+    with postgres_db:
+        my_cursor = postgres_db.cursor()
         my_cursor.execute("DELETE FROM company WHERE id = %d" % id)
         return f"{my_cursor.rowcount} row affected"

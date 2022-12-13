@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     PG_USER: str
     PG_PASSWORD: str
 
-    class Config:
-        config = dotenv_values(".env")
+
+class Config:
+    value_from_env = dotenv_values(".env")
 
 
 settings = Settings()
-

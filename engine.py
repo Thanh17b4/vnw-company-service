@@ -6,9 +6,8 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, MetaData, text
 from sqlalchemy.orm import sessionmaker, declarative_base, create_session
 
-import model
-from company_main import app
 from config import settings
+from main import app
 
 engine = create_engine(settings.SQLALCHEMY_TEST_DATABASE_URI)
 

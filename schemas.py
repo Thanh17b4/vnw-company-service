@@ -1,4 +1,5 @@
-from datetime import datetime, date
+from datetime import datetime
+
 from pydantic import BaseModel
 
 
@@ -16,7 +17,7 @@ class Company(BaseModel):
         return vars(self)
 
 
-def CompanyResult(company) -> dict:
+def company_result(company) -> dict:
     return {
         "id": company[0],
         "name": company[1],
@@ -26,11 +27,8 @@ def CompanyResult(company) -> dict:
         "slug": company[5],
         "contact": company[6],
 
-
     }
 
 
-def CompanyListResult(companies) -> list:
-    return [CompanyResult(company) for company in companies]
-
-
+def company_list_result(companies) -> list:
+    return [company_result(company) for company in companies]

@@ -7,9 +7,9 @@ def is_blank(my_string):
     return True
 
 
-def is_integer(ID: any):
+def is_integer(id: any):
     v = Validator({'id': {'type': 'integer'}})
-    result = v.validate({'id': ID})
+    result = v.validate({'id': id})
     return result
 
 
