@@ -64,7 +64,7 @@ def all_company(page: int, limit: int, response: Response):
         offset = (page - 1) * limit
         if page > total_page or page <= 0:
             response.status_code = status.HTTP_400_BAD_REQUEST
-            return f"page is not exist, total page is {total_page}"
+            return f"no record found"
         my_cursor.execute("SELECT * FROM company LIMIT %s OFFSET %s", (limit, offset))
         companies = my_cursor.fetchall()
         if companies is None:
