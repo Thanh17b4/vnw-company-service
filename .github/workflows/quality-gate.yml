@@ -33,5 +33,5 @@ jobs:
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: sqp_fab836129d30f6cec1c9ba07a661506a2d3f061a
+          SONAR_HOST_URL: http://34.124.228.121:9000
