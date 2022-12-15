@@ -1,4 +1,10 @@
-
+name: Build
+on:
+  push:
+    branches:
+      'github-actions'
+      'feat/**'
+      'fix/**'
 jobs:
   build:
     runs-on:
