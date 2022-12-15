@@ -1,9 +1,9 @@
 on:
   push:
     branches:
-      'github-actions'
-      'feat/**'
-      'fix/**'
+      - github-actions
+      - feat/**
+      - fix/**
 jobs:
   build:
     runs-on:
